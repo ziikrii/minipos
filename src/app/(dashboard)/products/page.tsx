@@ -2,48 +2,31 @@
 
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/ui/Empty-state";
 import Input from "@/components/ui/Input";
 import formatCurrency from "@/utils/currency";
-
-const sampleProducts = [
-  {
-    id: "1",
-    name: "Kopi Susu",
-    sku: "KOPI001",
-    price: 18000,
-    stock: 10,
-  },
-  {
-    id: "2",
-    name: "Teh Manis",
-    sku: "TEH001",
-    price: 8000,
-    stock: 5,
-  },
-  {
-    id: "3",
-    name: "Roti Bakar",
-    sku: "ROTI001",
-    price: 15000,
-    stock: 3,
-  },
-];
+import { Product } from "@/types/product";
+import getProducts from "@/utils/product-storage";
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    setProducts(getProducts());
+  }, []);
 
   const filtered = useMemo(() => {
     const keywords = search.toLowerCase();
 
-    return sampleProducts.filter(
+    return products.filter(
       (product) =>
         product.name.toLowerCase().includes(keywords) ||
         product.sku.toLowerCase().includes(keywords),
     );
-  });
+  }, [products, search]);
 
   return (
     <div>
@@ -143,14 +126,14 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {sampleProducts.length === 0 && (
+      {products.length === 0 && (
         <EmptyState
           title="Belum ada produk"
           description="Tambahkan produk baru untuk memulai transaksi POS"
         />
       )}
 
-      {sampleProducts.length > 0 && filtered.length === 0 && (
+      {products.length > 0 && filtered.length === 0 && (
         <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">
           <Search className="mx-auto mb-2" />
           Produk tidak ditemukan.
