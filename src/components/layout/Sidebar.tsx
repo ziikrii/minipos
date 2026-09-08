@@ -1,13 +1,13 @@
 "use client";
-
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Boxes,
   LayoutDashboard,
   ReceiptText,
   ShoppingCart,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 const menu = [
   {
@@ -15,19 +15,16 @@ const menu = [
     label: "Dashboard",
     icon: LayoutDashboard,
   },
-
   {
     href: "/products",
     label: "Produk",
     icon: Boxes,
   },
-
   {
     href: "/transactions/new",
-    label: "Kasir/POS",
+    label: "Kasir / POS",
     icon: ShoppingCart,
   },
-
   {
     href: "/transactions",
     label: "Riwayat",
@@ -35,7 +32,7 @@ const menu = [
   },
 ];
 
-export default function Sidebar() {
+function Sidebar() {
   const pathname = usePathname();
 
   return (
@@ -52,17 +49,15 @@ export default function Sidebar() {
           const active =
             pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${
-                active
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
-              }`}
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${active ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-900 hover:text-white"}`}
             >
               <Icon size={18} />
+
               {item.label}
             </Link>
           );
@@ -71,3 +66,5 @@ export default function Sidebar() {
     </aside>
   );
 }
+
+export default Sidebar;
