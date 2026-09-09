@@ -9,12 +9,16 @@ import { getProducts } from "@/services/product.service";
 import type { Product } from "@/types/product";
 import type { CartItem, PaymentMethod } from "@/types/cart";
 import { formatCurrency } from "@/utils/currency";
+import { useRouter } from "next/navigation";
+import { createTransaction } from "@/services/transaction.service";
 
 export default function NewTransactionPage() {
+  const router = useRouter();
   const [produtcs, setProducts] = useState<Product[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [paidAmount, setPaidAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [loading, setLoading] = useState(true);
 
@@ -99,12 +103,20 @@ export default function NewTransactionPage() {
     );
   }
 
-  function handleCheckout() {
+  async function handleCheckout() {
     if (cartItems.length === 0) {
       alert("Keranjang Masih Kosong");
       return;
     }
+    const transactionId = await createTransaction({
+      items: cartItems,
+      total: grandTotal,
+      paidAmount,
+      paymentMethod,
+    });
+    router.push("/transactions/" + transactionId);
 
+    // Ini Kode Sebelum ada Update
     const payload = {
       items: cartItems,
       subtotal,
@@ -113,27 +125,30 @@ export default function NewTransactionPage() {
       paymentMethod,
     };
 
-    console.log("checkout payload", payload);
-    alert("Checkout berhasil disiapkan. Lihat Console");
+    // console.log("checkout payload", payload);
+    // alert("Checkout berhasil disiapkan. Lihat Console");
   }
   return (
     <div className="grid gap-3">
       <h1>Kasir / POS</h1>
       <p>Halaman transaksi baru.</p>
-      {filteredProducts.map((product) => (
-        <div
-          key={product.id}
-          className="flex items-center justify-between rounded-2xl border bg-white p-4"
-        >
-          <div>
-            <h3 className="font-bold text-black">{product.name}</h3>
-            <p className="text-sm text-slate-500">
-              {formatCurrency(product.price)}
-            </p>
+
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 sm lg:grid-cols-3">
+        {filteredProducts.map((product) => (
+          <div
+            key={product.id}
+            className="flex items-center justify-between rounded-2xl border bg-white p-4"
+          >
+            <div>
+              <h3 className="font-bold text-black">{product.name}</h3>
+              <p className="text-sm text-slate-500">
+                {formatCurrency(product.price)}
+              </p>
+            </div>
+            <Button onClick={() => handleAddCart(product)}>Tambah</Button>
           </div>
-          <Button onClick={() => handleAddCart(product)}>Tambah</Button>
-        </div>
-      ))}
+        ))}
+      </div>
       {cartItems.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center">
           <ShoppingCart className="mx-auto text-slate-400" />
@@ -144,8 +159,7 @@ export default function NewTransactionPage() {
           </p>
         </div>
       ) : (
-        ""
-        // <div>Render cart items</div>
+        <div>Render cart items</div>
       )}
       {cartItems.map((item) => (
         <div key={item.productId} className="rounded-2xl border bg-white p-4">
@@ -169,22 +183,48 @@ export default function NewTransactionPage() {
               handleUpdateQty(item.productId, Number(e.target.value))
             }
           />
+        </div>
+      ))}
+
+      {cartItems.length > 0 && (
+        <div className="rounded-2xl border bg-white p-4">
+          <h2 className="font-bold text-black">Pembayaran</h2>
+
+          <label className="block font-medium text-black">Discount</label>
+
           <Input
             type="number"
             min={0}
             value={discount}
             onChange={(e) => setDiscount(Number(e.target.value))}
+            className="mt-1"
           />
+
+          <label className="mt-3 block font-medium text-black">
+            Metode Pembayaran
+          </label>
+
           <select
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+            className="mt-1 w-full rounded-xl border p-2"
           >
             <option value="cash">Cash</option>
             <option value="transfer">Transfer</option>
             <option value="qris">QRIS</option>
           </select>
+
+          <div className="mt-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-black">Grand Total</span>
+              <span className="text-xl font-black text-indigo-600">
+                {formatCurrency(grandTotal)}
+              </span>
+            </div>
+          </div>
         </div>
-      ))}
+      )}
+
       <Button
         type="button"
         disabled={cartItems.length === 0}

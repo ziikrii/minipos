@@ -5,3 +5,10 @@ export function formatCurrency(value: number) {
     maximumFractionDigits: 0,
   }).format(value);
 }
+
+export function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}

@@ -47,12 +47,6 @@ export default function EditProductPage() {
     return <p>Produk tidak ditemukan.</p>;
   }
 
-  function handleSubmit(input: ProductInput) {
-    if (!product) return;
-    updateProduct(product.id, input);
-
-    router.push("/products");
-  }
   return (
     <div>
       <p className="text-sm font-bold text-indigo-600">MASTER DATA</p>
