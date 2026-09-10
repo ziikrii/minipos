@@ -64,7 +64,28 @@ export async function getTransactions(): Promise<Transaction[]> {
 }
 
 // Membaca Detail Invoice
-export async function getTransactionsById(id: string) {
+// export async function getTransactionsById(id: string) {
+//   console.log("Transaction ID:", id);
+
+//   const docRef = doc(db, "transactions", id);
+//   const snapshot = await getDoc(docRef);
+
+//   if (!snapshot.exists()) {
+//     return null;
+//   }
+
+//   const data = snapshot.data();
+
+//   return {
+//     id: snapshot.id,
+//     ...data,
+//     createdAt: data.createdAt?.toDate?.() ?? new Date(),
+//   };
+// }
+
+export async function getTransactionsById(
+  id: string,
+): Promise<Transaction | null> {
   console.log("Transaction ID:", id);
 
   const docRef = doc(db, "transactions", id);
@@ -78,7 +99,12 @@ export async function getTransactionsById(id: string) {
 
   return {
     id: snapshot.id,
-    ...data,
+    invoiceNumber: data.invoiceNumber,
+    items: data.items,
+    total: data.total,
+    paidAmount: data.paidAmount,
+    changeAmount: data.changeAmount,
+    paymentMethod: data.paymentMethod,
     createdAt: data.createdAt?.toDate?.() ?? new Date(),
   };
 }

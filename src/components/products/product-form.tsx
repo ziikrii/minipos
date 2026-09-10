@@ -1,5 +1,5 @@
 "use client";
-import React from 'react'
+import React from "react";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -15,123 +15,130 @@ type ProductFormProps = {
 };
 
 const defaultValues: ProductInput = {
-  name: '',
-  sku: '',
+  name: "",
+  sku: "",
   price: 0,
   stock: 0,
+  category: "makanan",
 };
 
+export function ProductForm({
+  initialValues = defaultValues,
+  submitLabel = "Simpan Produk",
+  onSubmit,
+}: ProductFormProps) {
+  const [values, setValues] = useState<ProductInput>(initialValues);
 
-
-
-export function ProductForm({initialValues = defaultValues, submitLabel = "Simpan Produk", onSubmit}: ProductFormProps){
-  const [values, setValues] = 
-    useState<ProductInput>(initialValues);
-    
-  function updateField(
-    field: keyof ProductInput,
-    value: string
-  ) {
-    setValues ((current) => ({
+  function updateField(field: keyof ProductInput, value: string) {
+    setValues((current) => ({
       ...current,
-      [field]: field === "price" || field === "stock"
-        ? Number(value)
-        : value,
-  }));
+      [field]: field === "price" || field === "stock" ? Number(value) : value,
+    }));
   }
-const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
-function handleSubmit (event: React.SyntheticEvent<HTMLFormElement>) {
-  event.preventDefault();
-  const validationErrors = validateProduct(values);
-  setErrors(validationErrors);
+  function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const validationErrors = validateProduct(values);
+    setErrors(validationErrors);
 
-  if (Object.keys(validationErrors).length > 0) {
-    return;
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+    onSubmit(values);
   }
-  onSubmit(values);
-}
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-5'>
-     <div>
-       <label className='text-sm font-bold text-slate-700'>
-        Nama Produk
-       </label>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label className="text-sm font-bold text-slate-700">Nama Produk</label>
 
-       <Input
-        value={values.name}
-        onChange={(event) => updateField ("name", event.target.value)}
-        placeholder='Contoh : Kopi Susu'
-       />
-       {errors.name && (
-        <p className='mt-1 text-sm font-semibold text-red-600'>
-          {errors.name}
-        </p>
-       )}
-      </div>
-     <div>
-       <label className='text-sm font-bold text-slate-700'>
-        SKU Produk
-       </label>
-
-       <Input
-        value={values.sku}
-        onChange={(event) => updateField ("sku", event.target.value)}
-        placeholder='KOPI001'
-       />
-       {errors.sku && (
-        <p className='mt-1 text-sm font-semibold text-red-600'>
-          {errors.sku}
-        </p>
-       )}
+        <Input
+          value={values.name}
+          onChange={(event) => updateField("name", event.target.value)}
+          placeholder="Contoh : Kopi Susu"
+        />
+        {errors.name && (
+          <p className="mt-1 text-sm font-semibold text-red-600">
+            {errors.name}
+          </p>
+        )}
       </div>
 
       <div>
-          <label className='text-sm font-bold text-slate-700'>
-            Harga Produk
-          </label>
-          <Input 
-            type ="number"
-            value={values.price}
-            onChange={(event) => updateField("price", event.target.value)}
-            placeholder="Contoh: 18000"
-            />
-            {errors.price && (
-        <p className='mt-1 text-sm font-semibold text-red-600'>
-          {errors.price}
-        </p>
-       )}
-        </div>
+        <label className="text-sm font-bold text-slate-700">SKU Produk</label>
 
-       <div>
-        <label className='text-sm font-bold text-slate-700'>
-          Stok Produk
-        </label>
         <Input
-          type ="number"
+          value={values.sku}
+          onChange={(event) => updateField("sku", event.target.value)}
+          placeholder="KOPI001"
+        />
+        {errors.sku && (
+          <p className="mt-1 text-sm font-semibold text-red-600">
+            {errors.sku}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-sm font-bold text-slate-700">
+          Kategori Produk
+        </label>
+
+        <select
+          value={values.category}
+          onChange={(event) =>
+            updateField(
+              "category",
+              event.target.value as ProductInput["category"],
+            )
+          }
+          className="text-slate-700 mt-1 w-full rounded-xl border border-slate-300 p-2"
+        >
+          <option value="makanan">Makanan</option>
+          <option value="minuman">Minuman</option>
+          <option value="snack">Snack</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="text-sm font-bold text-slate-700">Harga Produk</label>
+        <Input
+          type="number"
+          value={values.price}
+          onChange={(event) => updateField("price", event.target.value)}
+          placeholder="Contoh: 18000"
+        />
+        {errors.price && (
+          <p className="mt-1 text-sm font-semibold text-red-600">
+            {errors.price}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-sm font-bold text-slate-700">Stok Produk</label>
+        <Input
+          type="number"
           value={values.stock}
           onChange={(event) => updateField("stock", event.target.value)}
-          placeholder='Contoh: 12'
-          />
-         {errors.stock && (
-        <p className='mt-1 text-sm font-semibold text-red-600'>
-          {errors.stock}
-        </p>
-       )}
-        </div>
-  
-      <div className='flex items-center justify-end gap-3'>
+          placeholder="Contoh: 12"
+        />
+        {errors.stock && (
+          <p className="mt-1 text-sm font-semibold text-red-600">
+            {errors.stock}
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center justify-end gap-3">
         <Button variant="secondary">
           <Link href="/products">Batal</Link>
         </Button>
-        <Button type="submit">
-          {submitLabel}
-        </Button>
+        <Button type="submit">{submitLabel}</Button>
       </div>
     </form>
   );
-
 }
 
 type FormErrors = Partial<Record<keyof ProductInput, string>>;
@@ -145,12 +152,11 @@ function validateProduct(values: ProductInput) {
   if (!values.sku.trim()) {
     errors.sku = "SKU wajib diisi.";
   }
-  if (values.price <= 0 ) {
-    errors.price = "Harga harus lebih dari nol."
+  if (values.price <= 0) {
+    errors.price = "Harga harus lebih dari nol.";
   }
-  if (values.stock < 0 ) {
-    errors.stock = "Stock tidak boleh minus."
-  }  
+  if (values.stock < 0) {
+    errors.stock = "Stock tidak boleh minus.";
+  }
   return errors;
 }
-

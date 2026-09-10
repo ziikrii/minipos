@@ -12,6 +12,7 @@ import { formatCurrency } from "@/utils/currency";
 // import { getProducts } from "@/utils/product-storage";
 // import { deleteProduct } from "@/lib/product-storage";
 import { deleteProduct, getProducts } from "@/services/product.service";
+import { useRouter } from "next/navigation";
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
@@ -19,6 +20,7 @@ export default function ProductsPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   async function loadProducts() {
     try {
@@ -116,6 +118,7 @@ export default function ProductsPage() {
                 <tr>
                   <th className="px-5 py-4">Produk</th>
                   <th className="px-5 py-4">SKU</th>
+                  <th className="px-5 py-4">Kategori</th>
                   <th className="px-5 py-4">Harga</th>
                   <th className="px-5 py-4">Stok</th>
                   <th className="px-5 py-4 text-center">Aksi</th>
@@ -135,6 +138,13 @@ export default function ProductsPage() {
                       <td className="px-5 py-4 font-bold text-slate-700">
                         {product.sku}
                       </td>
+
+                      <td className="px-5 py-4">
+                        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold capitalize text-indigo-600">
+                          {product.category.replace("-", " ")}
+                        </span>
+                      </td>
+
                       <td className="px-5 py-4 text-slate-600 font-semibold">
                         {formatCurrency(product.price)}
                       </td>
@@ -157,6 +167,14 @@ export default function ProductsPage() {
                           >
                             Edit
                           </Link>
+
+                          <Link
+                            href={"/products/" + product.id + "/restock"}
+                            className="rounded-lg border border-indigo-200 px-3 py-2 text-sm text-indigo-600 font-semibold hover:bg-indigo-50 duration-200"
+                          >
+                            Restock
+                          </Link>
+
                           <button
                             onClick={() => handleDelete(product.id)}
                             className=" rounded-lg border border-rose-200 px-3 py-2 text-sm text-rose-600 font-semibold cursor-pointer hover:bg-red-200 duration-200 "
