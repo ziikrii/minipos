@@ -64,16 +64,16 @@ export default function NewTransactionPage() {
     });
   }, [products, search, category]);
 
-  // const filteredProducts = useMemo(() => {
-  //   return products.filter((product) => {
-  //     const keyword = search.toLowerCase();
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const keyword = search.toLowerCase();
 
-  //     return (
-  //       product.name.toLowerCase().includes(keyword) ||
-  //       product.sku.toLowerCase().includes(keyword)
-  //     );
-  //   });
-  // }, [products, search]);
+      return (
+        product.name.toLowerCase().includes(keyword) ||
+        product.sku.toLowerCase().includes(keyword)
+      );
+    });
+  }, [products, search]);
 
   function handleAddCart(product: Product) {
     if (product.stock <= 0) {
@@ -224,7 +224,7 @@ export default function NewTransactionPage() {
       <div>
         <p className="text-sm font-bold text-indigo-600">KASIR / POS</p>
 
-        <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-400">
+        <h1 className="mt-1 text-3xl font-black tracking-tight text-white">
           Transaksi Baru
         </h1>
 
@@ -253,7 +253,7 @@ export default function NewTransactionPage() {
             </div>
 
             {/* Filter Kategori */}
-            <div className="mt-4 flex flex-wrap gap-2">
+            {/* <div className="mt-4 flex flex-wrap gap-2">
               {[
                 { value: "semua", label: "Semua" },
                 { value: "makanan", label: "Makanan" },
@@ -273,7 +273,7 @@ export default function NewTransactionPage() {
                   {item.label}
                 </button>
               ))}
-            </div>
+            </div> */}
 
             {/* Daftar Produk */}
             <div className="mt-5">

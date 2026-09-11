@@ -1,12 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Boxes,
   LayoutDashboard,
+  LogOut,
   ReceiptText,
   ShoppingCart,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-contex";
 
 const menu = [
   {
@@ -31,18 +35,33 @@ const menu = [
   },
 ];
 
-function Sidebar() {
+export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  async function handleLogout() {
+    await logout();
+    router.replace("/login");
+  }
 
   return (
-    <aside className="bg-slate-950 text-white lg:min-h-screen lg:w-64">
-      <div className="p-5">
-        <div className="text-xl font-black">MiniPOS</div>
-
-        <div className="mt-1 text-xs text-slate-400">Bootcamp Project</div>
+    <aside className="border-b border-slate-200 bg-slate-950 text-white lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r lg:border-r-slate-800">
+      <div className="flex items-center justify-between p-5 lg:block">
+        <div>
+          <div className="text-xl font-black">MiniPOS</div>
+          <div className="mt-1 text-xs text-slate-400">Bootcamp Project</div>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"
+          aria-label="Logout"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
 
-      <nav className="grid gap-2 px-4">
+      <nav className="flex gap-2 overflow-x-auto px-4 pb-4 lg:grid lg:pb-0">
         {menu.map((item) => {
           const Icon = item.icon;
           const active =
@@ -53,15 +72,24 @@ function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${active ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-900 hover:text-white"}`}
+              className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${active ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-900 hover:text-white"}`}
             >
               <Icon size={18} />
-
               {item.label}
             </Link>
           );
         })}
       </nav>
+
+      <div className="mt-auto hidden p-4 lg:block">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold text-slate-300 hover:bg-slate-900 hover:text-white"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
+      </div>
     </aside>
   );
 }

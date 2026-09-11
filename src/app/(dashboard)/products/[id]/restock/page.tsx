@@ -50,7 +50,7 @@ export default function RestockProductPage() {
       setSaving(true);
       setError("");
 
-      await restockProduct(product.id, quantity);
+      // await restockProduct(product.id, quantity);
 
       router.push("/products");
     } catch (error) {
@@ -131,7 +131,7 @@ export default function RestockProductPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+        {/* <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
           <p className="text-sm font-semibold text-indigo-600">
             Stock Setelah Restock
           </p>
@@ -139,7 +139,7 @@ export default function RestockProductPage() {
           <p className="mt-1 text-2xl font-black text-indigo-700">
             {product.stock + Math.max(quantity, 0)}
           </p>
-        </div>
+        </div> */}
 
         <div className="flex justify-end gap-3">
           <Button

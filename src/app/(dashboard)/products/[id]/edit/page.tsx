@@ -2,12 +2,13 @@
 
 import { ProductForm } from "@/components/products/product-form";
 // import { getProductByid, updateProduct } from "@/lib/product-storage";
-import { getProductById, updateProduct } from "@/services/product.service";
+import { getProduct, updateProduct } from "@/services/product.service";
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import type { ProductInput, Product } from "@/types/product";
+import { useAuth } from "@/contexts/auth-contex";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -16,17 +17,20 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function handleSubmit(input: ProductInput) {
-    if (!product) return;
+  const { user } = useAuth();
 
-    await updateProduct(product.id, input);
+  async function handleSubmit(input: ProductInput) {
+    if (!product || !user) return;
+
+    await updateProduct(user.uid, product.id, input);
 
     router.push("/products");
   }
 
   useEffect(() => {
     async function loadProduct() {
-      const data = await getProductById(params.id);
+      if (!user) return;
+      const data = await getProduct(user.uid, params.id);
       setProduct(data ?? null);
       setLoading(false);
     }

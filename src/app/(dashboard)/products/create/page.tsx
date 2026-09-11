@@ -2,19 +2,22 @@
 
 import { useRouter } from "next/navigation";
 // import { addProduct } from "@/utils/product-storage";
-import { addProduct } from "@/services/product.service";
+import { createProduct } from "@/services/product.service";
 
 import { ProductForm } from "@/components/products/product-form";
 import type { ProductInput } from "@/types/product";
 // import { addProduct } from "@/utils/product-storage";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useAuth } from "@/contexts/auth-contex";
 
 export default function CreateProductPage() {
   const router = useRouter();
+  const { user } = useAuth();
 
   async function handleSubmit(input: ProductInput) {
     console.log("clicked");
-    await addProduct(input);
+    if (!user) return;
+    await createProduct(user.uid, input);
     console.log("clicked tets");
 
     router.push("/products");

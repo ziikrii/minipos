@@ -1,58 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/auth-contex";
+import { deleteProduct, getProducts } from "@/services/product.service";
 import type { Product } from "@/types/product";
 import { formatCurrency } from "@/utils/currency";
+// import { useRouter } from "next/navigation";
 // import { getProducts } from "@/utils/product-storage";
 // import { deleteProduct } from "@/lib/product-storage";
-import { deleteProduct, getProducts } from "@/services/product.service";
-import { useRouter } from "next/navigation";
 
 export default function ProductsPage() {
-  const [search, setSearch] = useState("");
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
-
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const router = useRouter();
 
-  async function loadProducts() {
+  const loadProducts = useCallback(async () => {
+    if (!user) return;
     try {
       setLoading(true);
       setError("");
-
-      const data = await getProducts();
-
-      setProducts(data);
-    } catch (error) {
-      console.error(error);
-      setError("Gagal membuat Produk.");
+      setProducts(await getProducts(user.uid));
+    } catch {
+      setError("Gagal mengambil produk");
     } finally {
       setLoading(false);
     }
-  }
+  }, [user]);
 
-  async function handleDelete(id: string) {
-    const confirmed = window.confirm("Yakin ingin menghapus produk ini?");
-    if (!confirmed) return;
-
-    await deleteProduct(id);
-
-    await loadProducts();
-    // const latestProducts = getProducts();
-    // setProducts(latestProducts);
-  }
-
-  // useEffect(() => {
-  //   // setProducts(getProducts());
-  //   loadProducts();
-  // }, []);
+  useEffect(() => {
+    void loadProducts();
+  }, [loadProducts]);
 
   const filtered = useMemo(() => {
     const keyword = search.toLowerCase();
@@ -64,22 +48,23 @@ export default function ProductsPage() {
     );
   }, [products, search]);
 
-  useEffect(() => {
-    // setProducts(getProducts());
-    loadProducts();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="rounded-2xl border bg-white text-black p-6">
-        Memuat data produk
-      </div>
-    );
+  async function handleDelete(product: Product) {
+    if (!user || !window.confirm(`Hapus produk ${product.name}?`)) return;
+    await deleteProduct(user.uid, product.id);
+    await loadProducts();
   }
 
-  if (error) {
-    return <div className="rounded-2xl border bg-white p-6">{error}</div>;
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="rounded-2xl border bg-white text-black p-6">
+  //       Memuat data produk
+  //     </div>
+  //   );
+  // }
+
+  // if (error) {
+  //   return <div className="rounded-2xl border bg-white p-6">{error}</div>;
+  // }
 
   return (
     <div>
@@ -110,7 +95,24 @@ export default function ProductsPage() {
         />
       </div>
 
-      {filtered.length > 0 && (
+      {loading && (
+        <div className="rounded-2xl bg-white p-8 text-sm text-slate-500">
+          Memuat Produk...
+        </div>
+      )}
+      {error && (
+        <div className="rounded-2xl bg-rose-50 text-sm font-semibold text-rose-700">
+          {error}
+        </div>
+      )}
+      {!loading && !error && products.length === 0 && (
+        <EmptyState
+          title="Belum ada produk"
+          description="Tambahkan produk pertama untuk memulai transaksi POS"
+        />
+      )}
+
+      {!loading && filtered.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-auto">
             <table className="w-full text-left text-sm">
@@ -118,7 +120,7 @@ export default function ProductsPage() {
                 <tr>
                   <th className="px-5 py-4">Produk</th>
                   <th className="px-5 py-4">SKU</th>
-                  <th className="px-5 py-4">Kategori</th>
+                  {/* <th className="px-5 py-4">Kategori</th> */}
                   <th className="px-5 py-4">Harga</th>
                   <th className="px-5 py-4">Stok</th>
                   <th className="px-5 py-4 text-center">Aksi</th>
@@ -139,11 +141,11 @@ export default function ProductsPage() {
                         {product.sku}
                       </td>
 
-                      <td className="px-5 py-4">
+                      {/* <td className="px-5 py-4">
                         <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold capitalize text-indigo-600">
                           {product.category.replace("-", " ")}
                         </span>
-                      </td>
+                      </td> */}
 
                       <td className="px-5 py-4 text-slate-600 font-semibold">
                         {formatCurrency(product.price)}
@@ -163,23 +165,25 @@ export default function ProductsPage() {
                         <div className="flex justify-center gap-2">
                           <Link
                             href={"/products/" + product.id + "/edit"}
-                            className="rounded-lg border px-3 py-2 text-sm text-slate-600 font-semibold hover:bg-slate-200 duration-200"
+                            className="grid size-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+                            aria-label="Edit"
                           >
-                            Edit
+                            <Pencil size={16} />
                           </Link>
 
-                          <Link
+                          {/* <Link
                             href={"/products/" + product.id + "/restock"}
                             className="rounded-lg border border-indigo-200 px-3 py-2 text-sm text-indigo-600 font-semibold hover:bg-indigo-50 duration-200"
                           >
                             Restock
-                          </Link>
+                          </Link> */}
 
                           <button
-                            onClick={() => handleDelete(product.id)}
-                            className=" rounded-lg border border-rose-200 px-3 py-2 text-sm text-rose-600 font-semibold cursor-pointer hover:bg-red-200 duration-200 "
+                            onClick={() => handleDelete(product)}
+                            className="grid size-9 place-items-center rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50"
+                            aria-label="Hapus"
                           >
-                            Hapus
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
@@ -192,13 +196,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {filtered.length === 0 && (
-        <EmptyState
-          title="Belum ada produk"
-          description="Tambahkan produk pertama untuk memulai transaksi POS."
-        />
-      )}
-      {filtered.length > 0 && filtered.length === 0 && (
+      {!loading && products.length > 0 && filtered.length === 0 && (
         <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">
           <Search className="mx-auto mb-2" />
           Produk tidak ditemukan.
