@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -6,9 +8,10 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function formatDate(date: Date) {
+export function formatDate(value?: Timestamp) {
+  if (!value) return "-";
   return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(date);
+  }).format(value.toDate());
 }

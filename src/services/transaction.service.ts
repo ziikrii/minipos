@@ -7,11 +7,85 @@ import {
   getDocs,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
 
-import type { TransactionItem, Transaction } from "@/types/transaction";
-import type { PaymentMethod } from "@/types/cart";
+import type { TransactionItem, SaleTransaction } from "@/types/transaction";
+import type { CartItem, PaymentMethod } from "@/types/cart";
+import createInvoiceNumber from "@/utils/invoice";
+
+type CheckoutInput = {
+  items: CartItem[];
+  paymentMethod: PaymentMethod;
+  paymentAmount: number;
+};
+
+export async function checkout(uid: string, input: CheckoutInput) {
+  if (input.items.length === 0) throw new Error("Keranjang masih kosong");
+
+  const total = input.items.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0,
+  );
+  if (input.paymentMethod === "cash" && input.paymentAmount < total) {
+    throw new Error("Uang pembayaran masih kurang.");
+  }
+
+  const invoiceNumber = createInvoiceNumber();
+  const transactionRef = doc(collection(db, "users", uid, "transactions"));
+
+  await runTransaction(db, async (firestoreTransaction) => {
+    const productSnapshots = await Promise.all(
+      input.items.map((item) =>
+        firestoreTransaction.get(
+          doc(db, "users", uid, "products", item.productId),
+        ),
+      ),
+    );
+
+    productSnapshots.forEach((snapshot, index) => {
+      const cartItem = input.items[index];
+      if (!snapshot.exists())
+        throw new Error(`Produk ${cartItem.name} tidak ditemukan`);
+      const currentStock = Number(snapshot.data().stock ?? 0);
+      if (currentStock < cartItem.qty) {
+        throw new Error(`Stok ${cartItem.name} tidak mencukupi.`);
+      }
+    });
+
+    productSnapshots.forEach((snapshot, index) => {
+      const cartItem = input.items[index];
+      const currentStock = Number(snapshot.data()?.stock ?? 0);
+      firestoreTransaction.update(snapshot.ref, {
+        stock: currentStock - cartItem.qty,
+        updatedAt: serverTimestamp(),
+      });
+    });
+
+    const cleanItems = input.items.map(
+      ({ productId, name, sku, price, qty }) => ({
+        productId,
+        name,
+        sku,
+        price,
+        qty,
+      }),
+    );
+
+    firestoreTransaction.set(transactionRef, {
+      invoiceNumber,
+      items: cleanItems,
+      subtotal: total,
+      total,
+      paymentMethod: input.paymentMethod,
+      paymentAmount: input.paymentAmount,
+      change: input.paymentMethod === "cash" ? input.paymentAmount - total : 0,
+      createdAt: serverTimestamp(),
+    });
+  });
+  return { transactionId: transactionRef.id, invoiceNumber, total };
+}
 
 const transactionCollection = collection(db, "transactions");
 
@@ -42,25 +116,20 @@ export async function createTransaction(payload: CreateTransactionPayload) {
 }
 
 // Membaca riwayat transaksi
-export async function getTransactions(): Promise<Transaction[]> {
-  const q = query(transactionCollection, orderBy("createdAt", "desc"));
+export async function getTransactions(uid: string): Promise<SaleTransaction[]> {
+  const ref = collection(db, "users", uid, "transaction");
+  const snapshot = await getDocs(query(ref, orderBy("createdAt", "desc")));
+  return snapshot.docs.map(
+    (item) => ({ id: item.id, ...item.data() }) as SaleTransaction,
+  );
+}
 
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((item) => {
-    const data = item.data();
-
-    return {
-      id: item.id,
-      invoiceNumber: data.invoiceNumber,
-      items: data.items,
-      total: data.total,
-      paidAmount: data.paidAmount,
-      changeAmount: data.changeAmount,
-      paymentMethod: data.paymentMethod,
-      createdAt: data.createdAt?.toDate?.() ?? new Date(),
-    };
-  });
+export async function getSaleTransaction(uid: string, transactionId: string) {
+  const snapshot = await getDoc(
+    doc(db, "users", uid, "transactions", transactionId),
+  );
+  if (!snapshot.exists()) return null;
+  return { id: snapshot.id, ...snapshot.data() } as SaleTransaction;
 }
 
 // Membaca Detail Invoice
@@ -82,29 +151,3 @@ export async function getTransactions(): Promise<Transaction[]> {
 //     createdAt: data.createdAt?.toDate?.() ?? new Date(),
 //   };
 // }
-
-export async function getTransactionsById(
-  id: string,
-): Promise<Transaction | null> {
-  console.log("Transaction ID:", id);
-
-  const docRef = doc(db, "transactions", id);
-  const snapshot = await getDoc(docRef);
-
-  if (!snapshot.exists()) {
-    return null;
-  }
-
-  const data = snapshot.data();
-
-  return {
-    id: snapshot.id,
-    invoiceNumber: data.invoiceNumber,
-    items: data.items,
-    total: data.total,
-    paidAmount: data.paidAmount,
-    changeAmount: data.changeAmount,
-    paymentMethod: data.paymentMethod,
-    createdAt: data.createdAt?.toDate?.() ?? new Date(),
-  };
-}

@@ -3,27 +3,36 @@
 import { getTransactions } from "@/services/transaction.service";
 import { formatCurrency, formatDate } from "@/utils/currency";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Transaction } from "@/types/transaction";
+import { useCallback, useEffect, useState } from "react";
+import { SaleTransaction } from "@/types/transaction";
 import PrintButton from "@/components/transactions/print-button";
+import { useAuth } from "@/contexts/auth-contex";
+import { Button } from "@/components/ui/Button";
+import { Plus } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function TransactionPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<SaleTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      const data = await getTransactions();
-      setTransactions(data);
+  const load = useCallback(async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      setTransactions(await getTransactions(user.uid));
+    } finally {
       setLoading(false);
     }
-    loadData();
-  }, []);
+  }, [user]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  if (loading) {
-    return (
-      <div>
-        <div className="mb-7">
+  return (
+    <div>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
           <p className="text-sm font-bold text-indigo-600">TRANSAKSI</p>
 
           <h1 className="mt-1 text-3xl font-black tracking-tight">
@@ -31,34 +40,29 @@ export default function TransactionPage() {
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Memuat riwayat transaksi...
+            Lihat dan kelola riwayat transaksi yang telah dilakukan.
           </p>
         </div>
+        <Link href={"transactions/new"}>
+          <Button>
+            <Plus size={18} /> Transaksi Baru
+          </Button>
+        </Link>
+      </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Memuat data transaksi...
-          </p>
+      {loading && (
+        <div className="rounded-2xl bg-white p-8 text-sm text-slate-500">
+          Memuat Transaksi
         </div>
-      </div>
-    );
-  }
+      )}
+      {!loading && transactions.length === 0 && (
+        <EmptyState
+          title="Belum ada transaksi"
+          description="Buat Transaksi pertama melalui halaman kasir/ POS"
+        />
+      )}
 
-  return (
-    <div>
-      <div className="mb-7">
-        <p className="text-sm font-bold text-indigo-600">TRANSAKSI</p>
-
-        <h1 className="mt-1 text-3xl font-black tracking-tight">
-          Riwayat Transaksi
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-500">
-          Lihat dan kelola riwayat transaksi yang telah dilakukan.
-        </p>
-      </div>
-
-      {transactions.length > 0 ? (
+      {!loading && transactions.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -66,9 +70,9 @@ export default function TransactionPage() {
                 <tr>
                   <th className="px-5 py-4">No. Invoice</th>
                   <th className="px-5 py-4">Tanggal</th>
-                  <th className="px-5 py-4">Total</th>
+                  <th className="px-5 py-4">Item</th>
                   <th className="px-5 py-4">Metode Pembayaran</th>
-                  <th className="px-5 py-4 text-center">Aksi</th>
+                  <th className="px-5 py-4">Total</th>
                 </tr>
               </thead>
 
@@ -79,15 +83,20 @@ export default function TransactionPage() {
                     className="transition-colors hover:bg-slate-50/70"
                   >
                     <td className="px-5 py-4 font-bold text-slate-900">
-                      {transaction.invoiceNumber}
+                      <Link
+                        href={`/transaction/${transaction.id}`}
+                        className="font-black text-indigo-600 hover:underline"
+                      >
+                        {transaction.invoiceNumber}
+                      </Link>
                     </td>
 
                     <td className="px-5 py-4 text-slate-600">
                       {formatDate(transaction.createdAt)}
                     </td>
 
-                    <td className="px-5 py-4 font-bold text-slate-900">
-                      {formatCurrency(transaction.total)}
+                    <td className="px-5 py-4 text-slate-500">
+                      {transaction.items.length}
                     </td>
 
                     <td className="px-5 py-4 text-center">
@@ -96,36 +105,14 @@ export default function TransactionPage() {
                       </span>
                     </td>
 
-                    <td className="px-5 py-4 text-center">
-                      <Link
-                        href={"/transactions/" + transaction.id}
-                        className="inline-flex rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-                      >
-                        Lihat Invoice
-                      </Link>
+                    <td className="px-5 py-4 font-bold text-slate-900">
+                      {formatCurrency(transaction.total)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-          <h2 className="text-lg font-black text-slate-900">
-            Belum ada transaksi
-          </h2>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Transaksi yang berhasil dilakukan akan muncul di sini.
-          </p>
-
-          <Link
-            href="/transactions/new"
-            className="mt-5 inline-flex rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700"
-          >
-            Buat Transaksi
-          </Link>
         </div>
       )}
     </div>

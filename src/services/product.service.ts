@@ -30,7 +30,12 @@ export async function getProducts(uid: string): Promise<Product[]> {
     query(productCollection(uid), orderBy("createdAt", "desc")),
   );
 
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Product);
+  console.log(snapshot.docs);
+
+  const data = snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() }) as Product,
+  );
+  return data;
 }
 
 export async function getProduct(

@@ -10,9 +10,6 @@ import { useAuth } from "@/contexts/auth-contex";
 import { deleteProduct, getProducts } from "@/services/product.service";
 import type { Product } from "@/types/product";
 import { formatCurrency } from "@/utils/currency";
-// import { useRouter } from "next/navigation";
-// import { getProducts } from "@/utils/product-storage";
-// import { deleteProduct } from "@/lib/product-storage";
 
 export default function ProductsPage() {
   const { user } = useAuth();
@@ -53,18 +50,6 @@ export default function ProductsPage() {
     await deleteProduct(user.uid, product.id);
     await loadProducts();
   }
-
-  // if (loading) {
-  //   return (
-  //     <div className="rounded-2xl border bg-white text-black p-6">
-  //       Memuat data produk
-  //     </div>
-  //   );
-  // }
-
-  // if (error) {
-  //   return <div className="rounded-2xl border bg-white p-6">{error}</div>;
-  // }
 
   return (
     <div>
@@ -120,7 +105,6 @@ export default function ProductsPage() {
                 <tr>
                   <th className="px-5 py-4">Produk</th>
                   <th className="px-5 py-4">SKU</th>
-                  {/* <th className="px-5 py-4">Kategori</th> */}
                   <th className="px-5 py-4">Harga</th>
                   <th className="px-5 py-4">Stok</th>
                   <th className="px-5 py-4 text-center">Aksi</th>
@@ -140,12 +124,6 @@ export default function ProductsPage() {
                       <td className="px-5 py-4 font-bold text-slate-700">
                         {product.sku}
                       </td>
-
-                      {/* <td className="px-5 py-4">
-                        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold capitalize text-indigo-600">
-                          {product.category.replace("-", " ")}
-                        </span>
-                      </td> */}
 
                       <td className="px-5 py-4 text-slate-600 font-semibold">
                         {formatCurrency(product.price)}
@@ -170,14 +148,6 @@ export default function ProductsPage() {
                           >
                             <Pencil size={16} />
                           </Link>
-
-                          {/* <Link
-                            href={"/products/" + product.id + "/restock"}
-                            className="rounded-lg border border-indigo-200 px-3 py-2 text-sm text-indigo-600 font-semibold hover:bg-indigo-50 duration-200"
-                          >
-                            Restock
-                          </Link> */}
-
                           <button
                             onClick={() => handleDelete(product)}
                             className="grid size-9 place-items-center rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50"

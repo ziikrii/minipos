@@ -1,22 +1,17 @@
-import type { PaymentMethod } from "./cart";
+import { Timestamp } from "firebase/firestore";
+import type { CartItem, PaymentMethod } from "./cart";
 
-export type TransactionItem = {
-  productId: string;
-  name: string;
-  price: number;
-  qty: number;
-  subtotal: number;
-};
-
+export type TransactionItem = Omit<CartItem, "stock">;
 // Payment Method sudah ada di { PaymentMethod } from "./cart";
 
-export type Transaction = {
+export type SaleTransaction = {
   id: string;
   invoiceNumber: string;
   items: TransactionItem[];
+  subtotal: number;
   total: number;
+  paymentMethod: PaymentMethod;
   paidAmount: number;
   changeAmount: number;
-  paymentMethod: PaymentMethod;
-  createdAt: Date;
-}
+  createdAt: Timestamp;
+};
