@@ -1,6 +1,5 @@
 import Link from "next/link";
-import React from "react";
-import { Button } from "./Button";
+import { Button } from "./button";
 import { Plus } from "lucide-react";
 
 export function EmptyState({

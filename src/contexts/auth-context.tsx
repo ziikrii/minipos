@@ -1,8 +1,8 @@
 "use client";
 
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type AuthContextValue = {
   user: User | null;
@@ -39,5 +39,6 @@ export function useAuth() {
   const context = useContext(AuthContext);
   if (!context)
     throw new Error("useAuth harus digunakan di dalam AuthProvider");
+
   return context;
 }

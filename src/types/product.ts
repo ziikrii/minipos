@@ -1,4 +1,5 @@
-export type ProductCategory = "makanan" | "minuman" | "snack";
+import { Timestamp } from "firebase/firestore";
+
 
 export type Product = {
   id: string;
@@ -6,6 +7,7 @@ export type Product = {
   sku: string;
   price: number;
   stock: number;
-  category: ProductCategory;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 };
-export type ProductInput = Omit<Product, "id">;
+export type ProductInput = Omit<Product, "id" | "createdAt" | "updatedAt">;

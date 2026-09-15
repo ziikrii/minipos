@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/auth-contex";
+import { useAuth } from "@/contexts/auth-context";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { LoaderCircle, LogIn } from "lucide-react";
@@ -21,7 +21,7 @@ export default function LoginPage() {
     if (!authLoading && user) router.replace("/dashboard");
   }, [authLoading, user, router]);
 
-  async function handlesubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
@@ -35,19 +35,21 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       router.replace("/dashboard");
     } catch {
-      setError("Login gagal, Periksa email dan password");
+      setError("Login gagal. Periksa email dan password.");
     } finally {
       setLoading(false);
     }
   }
+
+  console.log(loading);
+
   return (
     <main className="grid min-h-screen place-items-center bg-slate-100 p-4">
       <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-xl shadow-slate-200/60 sm:p-9">
         <div className="mb-8">
-          <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-indigo-600 text-white">
+          <div className="mb-8 grid size-12 place-items-center rounded-2xl bg-indigo-600 text-white">
             <LogIn size={22} />
           </div>
-
           <h1 className="text-3xl font-black tracking-tight text-slate-950">
             Masuk MiniPOS
           </h1>
@@ -56,7 +58,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form className="grid gap-5" onSubmit={handlesubmit}>
+        <form className="grid gap-5" onSubmit={handleSubmit}>
           <Input
             label="Email"
             type="email"
@@ -72,9 +74,15 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          {error && (
+            <div className="rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700">
+              {error}
+            </div>
+          )}
+
           <Button type="submit" disabled={loading}>
             {loading && <LoaderCircle size={18} className="animate-spin" />}
-            {loading ? "Memproses" : "Login"}
+            {loading ? "Memproses..." : "Login"}
           </Button>
         </form>
       </div>

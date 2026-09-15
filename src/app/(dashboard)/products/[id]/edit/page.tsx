@@ -1,14 +1,11 @@
 "use client";
 
 import { ProductForm } from "@/components/products/product-form";
-// import { getProductByid, updateProduct } from "@/lib/product-storage";
 import { getProduct, updateProduct } from "@/services/product.service";
-
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import type { ProductInput, Product } from "@/types/product";
-import { useAuth } from "@/contexts/auth-contex";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -37,12 +34,6 @@ export default function EditProductPage() {
 
     loadProduct();
   }, [params.id]);
-  // useEffect(() => {
-  //   const selectedProduct = getProductByid(params.id);
-
-  //   setProduct(selectedProduct);
-  //   setLoading(false);
-  // }, [params.id]);
 
   if (loading) {
     return <p>Memuat produk ...</p>;
@@ -57,7 +48,7 @@ export default function EditProductPage() {
       <h1 className="mt-1 text-3xl font-black">Edit Produk</h1>
 
       <ProductForm
-        initialValues={product}
+        initialData={product}
         submitLabel="Simpan Perubahan"
         onSubmit={handleSubmit}
       />

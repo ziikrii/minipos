@@ -8,7 +8,6 @@ const sampleProducts: Product[] = [
     sku: "KOPI001",
     price: 18000,
     stock: 12,
-    category: "minuman",
   },
   {
     id: "2",
@@ -16,7 +15,6 @@ const sampleProducts: Product[] = [
     sku: "TEH001",
     price: 8000,
     stock: 8,
-    category: "minuman",
   },
 ];
 
@@ -34,7 +32,6 @@ export function getProducts() {
 }
 
 export function addProduct(input: ProductInput) {
-  // console.log("test")
   const products = getProducts();
 
   const newProduct: Product = {

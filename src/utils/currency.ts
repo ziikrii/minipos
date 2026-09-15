@@ -9,7 +9,7 @@ export function formatCurrency(value: number) {
 }
 
 export function formatDate(value?: Timestamp) {
-  if (!value) return "-";
+  if(!value) return "-";
   return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
     timeStyle: "short",

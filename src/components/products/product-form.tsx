@@ -1,41 +1,31 @@
 "use client";
-import React, { FormEvent, useEffect } from "react";
-
+import { FormEvent, useEffect } from "react";
 import { useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { ProductInput } from "@/types/product";
 import { LoaderCircle } from "lucide-react";
 
-type ProductFormProps = {
-  initialValues?: ProductInput;
-  submitLabel?: string;
-  onSubmit: (values: ProductInput) => Promise<void>;
-};
+const initialValue: ProductInput = { name: "", sku: "", price: 0, stock: 0 };
 
-const defaultValues: ProductInput = {
-  name: "",
-  sku: "",
-  price: 0,
-  stock: 0,
-  category: "makanan",
+type Props = {
+  initialData?: ProductInput;
+  submitLabel?: string;
+  onSubmit: (data: ProductInput) => Promise<void>;
 };
 
 export function ProductForm({
-  initialValues,
+  initialData,
   submitLabel = "Simpan Produk",
   onSubmit,
-}: ProductFormProps) {
-  const [form, setForm] = useState<ProductInput>(
-    initialValues ?? defaultValues,
-  );
+}: Props) {
+  const [form, setForm] = useState<ProductInput>(initialData ?? initialValue);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (initialValues) setForm(initialValues);
-  }, [initialValues]);
+    if (initialData) setForm(initialData);
+  }, [initialData]);
 
   function setField<K extends keyof ProductInput>(
     field: K,
@@ -49,9 +39,9 @@ export function ProductForm({
     setError("");
 
     if (!form.name.trim() || !form.sku.trim())
-      return setError("Nama dan SKU Wajib diisi.");
-    if (form.price <= 0) return setError("Harga harus lebih dari 0.");
-    if (form.stock < 0) return setError("Stocl tidal boleh negatif.");
+      return setError("Nama dan SKU wajib diisi.");
+    if (form.price <= 0) return setError("Harga harus lebih dari 0");
+    if (form.stock < 0) return setError("Stock tidak boleh negatif");
 
     try {
       setLoading(true);
@@ -80,22 +70,22 @@ export function ProductForm({
       />
       <Input
         label="SKU"
-        placeholder="Contoh: KOPI001"
+        placeholder="Contoh: KOPI"
         value={form.sku}
         onChange={(e) => setField("sku", e.target.value)}
       />
-      <div>
+      <div className="grid gap-5 sm:grid-cols-2">
         <Input
           label="Harga"
           type="number"
-          min={1}
-          value={form.price || ""}
+          min="1"
+          value={form.price}
           onChange={(e) => setField("price", Number(e.target.value))}
         />
         <Input
-          label="Stock"
+          label="Stok"
           type="number"
-          min={0}
+          min="0"
           value={form.stock}
           onChange={(e) => setField("stock", Number(e.target.value))}
         />
@@ -107,7 +97,7 @@ export function ProductForm({
       )}
       <Button type="submit" disabled={loading} className="sm:w-fit">
         {loading && <LoaderCircle size={18} className="animate-spin" />}
-        {loading ? "Menyimpan.." : submitLabel}
+        {loading ? "Menyimpan..." : submitLabel}
       </Button>
     </form>
   );

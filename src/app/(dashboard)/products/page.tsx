@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button";
+
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/auth-contex";
-import { deleteProduct, getProducts } from "@/services/product.service";
 import type { Product } from "@/types/product";
 import { formatCurrency } from "@/utils/currency";
+import { deleteProduct, getProducts } from "@/services/product.service";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function ProductsPage() {
   const { user } = useAuth();
@@ -17,6 +19,7 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const loadProducts = useCallback(async () => {
     if (!user) return;
@@ -24,16 +27,17 @@ export default function ProductsPage() {
       setLoading(true);
       setError("");
       setProducts(await getProducts(user.uid));
-    } catch {
-      setError("Gagal mengambil produk");
+    } catch (e) {
+      console.log(e);
+      setError("Gagal mengambil produk.");
     } finally {
       setLoading(false);
     }
   }, [user]);
 
   useEffect(() => {
-    void loadProducts();
-  }, [loadProducts]);
+    loadProducts();
+  }, []);
 
   const filtered = useMemo(() => {
     const keyword = search.toLowerCase();
@@ -49,6 +53,17 @@ export default function ProductsPage() {
     if (!user || !window.confirm(`Hapus produk ${product.name}?`)) return;
     await deleteProduct(user.uid, product.id);
     await loadProducts();
+  }
+  if (loading) {
+    return (
+      <div className="rounded-2xl border bg-white text-black p-6">
+        Memuat data produk
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="rounded-2xl border bg-white p-6">{error}</div>;
   }
 
   return (
@@ -93,7 +108,7 @@ export default function ProductsPage() {
       {!loading && !error && products.length === 0 && (
         <EmptyState
           title="Belum ada produk"
-          description="Tambahkan produk pertama untuk memulai transaksi POS"
+          description="Tambahkan produk pertama untuk memulai transaksi POS."
         />
       )}
 
@@ -143,17 +158,16 @@ export default function ProductsPage() {
                         <div className="flex justify-center gap-2">
                           <Link
                             href={"/products/" + product.id + "/edit"}
-                            className="grid size-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
-                            aria-label="Edit"
+                            className="rounded-lg border px-3 py-2 text-sm text-slate-600 font-semibold hover:bg-slate-200 duration-200"
                           >
-                            <Pencil size={16} />
+                            Edit
                           </Link>
+
                           <button
                             onClick={() => handleDelete(product)}
-                            className="grid size-9 place-items-center rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50"
-                            aria-label="Hapus"
+                            className=" rounded-lg border border-rose-700 bg-rose-600 px-3 py-2 text-sm text-white font-semibold cursor-pointer hover:bg-red-200 duration-200 "
                           >
-                            <Trash2 size={16} />
+                            Hapus
                           </button>
                         </div>
                       </td>
