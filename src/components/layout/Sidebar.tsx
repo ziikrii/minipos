@@ -9,7 +9,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { Button } from "../ui/button";
+import { Button } from "../ui/Button";
 
 const menu = [
   {

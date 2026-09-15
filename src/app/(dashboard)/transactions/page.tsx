@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Transaction } from "@/types/transaction";
 import { useAuth } from "@/contexts/auth-context";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Plus } from "lucide-react";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyState } from "@/components/ui/Empty-state";
 
 export default function TransactionPage() {
   const { user } = useAuth();

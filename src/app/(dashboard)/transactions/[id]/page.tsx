@@ -1,10 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/auth-context";
-import {
-  getTransaction,
-} from "@/services/transaction.service";
+import { getTransaction } from "@/services/transaction.service";
 import { Transaction } from "@/types/transaction";
 import { formatCurrency, formatDate } from "@/utils/currency";
 import { CheckCircle2, Printer } from "lucide-react";

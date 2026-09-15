@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/Empty-state";
 import { Input } from "@/components/ui/Input";
 import type { Product } from "@/types/product";
 import { formatCurrency } from "@/utils/currency";

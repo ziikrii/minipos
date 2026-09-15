@@ -14,7 +14,7 @@ import { getTransactions } from "@/services/transaction.service";
 import type { Product } from "@/types/product";
 import type { Transaction } from "@/types/transaction";
 import { formatCurrency, formatDate } from "@/utils/currency";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 function isToday(date?: Transaction["createdAt"]) {
   if (!date) return false;
