@@ -1,5 +1,5 @@
 import AuthGuard from "@/components/auth/auth-guard";
-import Sidebar from "@/components/layout/sidebar";
+import Sidebar from "@/components/layout/Sidebar";
 
 export default function DashboardLayout({
   children,
