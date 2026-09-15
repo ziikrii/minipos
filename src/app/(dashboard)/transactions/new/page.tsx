@@ -4,7 +4,7 @@ import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { getProducts } from "@/services/product.service";
 import type { Product } from "@/types/product";
 import type { CartItem, PaymentMethod } from "@/types/cart";

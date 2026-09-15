@@ -2,7 +2,7 @@
 import { FormEvent, useEffect } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "../ui/input";
+import { Input } from "../ui/Input";
 import { ProductInput } from "@/types/product";
 import { LoaderCircle } from "lucide-react";
 

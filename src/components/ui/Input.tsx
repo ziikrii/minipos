@@ -10,8 +10,7 @@ export function Input({ label, error, className = "", ...props }: Props) {
     <label className="grid gap-2 text-sm font-semibold text-slate-700">
       {label && <span>{label}</span>}
       <input
-        className={
-          `min-h-11
+        className={`min-h-11
           rounded-xl border 
           border-slate-200 
           bg-white 

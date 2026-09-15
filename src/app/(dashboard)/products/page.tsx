@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import type { Product } from "@/types/product";
 import { formatCurrency } from "@/utils/currency";
 import { deleteProduct, getProducts } from "@/services/product.service";
